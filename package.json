@@ -1,0 +1,24 @@
+{
+  "name": "loc-counter-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm build:css && pnpm build:js && pnpm build:app",
+    "build:css": "tailwindcss -i ./src/frontend/input.css -o ./static/styles.css --minify",
+    "build:js": "vite build",
+    "build:app": "cp src/frontend/chart-app.js static/chart-app.js",
+    "dev": "vite build --watch",
+    "clean": "rm -rf static"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.1",
+    "chartjs-adapter-luxon": "^1.3.1",
+    "chartjs-plugin-annotation": "^3.1.0",
+    "luxon": "^3.4.4"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.1",
+    "vite": "^7.0.0"
+  }
+}

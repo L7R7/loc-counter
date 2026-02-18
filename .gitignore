@@ -1,0 +1,17 @@
+/.idea
+/project/project/
+/project/target/
+/target/
+.metals/
+.bsp
+.vscode
+.bloop
+project/metals.sbt
+src/main/resources/local.conf
+node_modules/
+pnpm-lock.yaml
+static/
+loc.db
+chart.html
+app.jar
+/output/
