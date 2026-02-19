@@ -1,12 +1,11 @@
 {
-  "line-length": false,
-  "MD007": {
-    "indent": 4
-  },
-  "MD013": false,
-  "MD024": false,
-  "MD026": false,
-  "MD034": false,
-  "MD046": false
+    "line-length": false,
+    "MD007": {
+        "indent": 4
+    },
+    "MD013": false,
+    "MD024": false,
+    "MD026": false,
+    "MD034": false,
+    "MD046": false
 }
-

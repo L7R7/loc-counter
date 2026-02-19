@@ -6,16 +6,16 @@ Count the lines of code for all projects in a GitLab group and visualize the pro
 
 The app expects the following environment variables to be set:
 
-* `GITLAB_API_TOKEN`: API-Token to authenticate against the GitLab API
-* `CI_API_V4_URL`: URL to the API base endpoint of your GitLab instance (this variable will be set automatically in CI jobs)
-* `GITLAB_GROUP_ID`: ID of the group for which the data should be collected
-* `DATABASE_NAME`: file name of the sqlite database. If that file doesn't exist, it will be created.
+- `GITLAB_API_TOKEN`: API-Token to authenticate against the GitLab API
+- `CI_API_V4_URL`: URL to the API base endpoint of your GitLab instance (this variable will be set automatically in CI jobs)
+- `GITLAB_GROUP_ID`: ID of the group for which the data should be collected
+- `DATABASE_NAME`: file name of the sqlite database. If that file doesn't exist, it will be created.
 
 The following environment variables are optional:
 
-* `USER_AGENT`: User-Agent to set in requests against the GitLab API. Default value is "loc-counter"
-* `DEFAULT_LANGUAGES`: comma-separated list of language names that should be shown on the HTML page by default. You can always toggle all languages, this only controls the initial state. Defaults to an empty list
-* `KEEP_TMP_DIR`: This is mainly for debugging. If set to `true`, the tmp dir in which the repositories are cloned, won't be deleted after the data collection is finished.
+- `USER_AGENT`: User-Agent to set in requests against the GitLab API. Default value is "loc-counter"
+- `DEFAULT_LANGUAGES`: comma-separated list of language names that should be shown on the HTML page by default. You can always toggle all languages, this only controls the initial state. Defaults to an empty list
+- `KEEP_TMP_DIR`: This is mainly for debugging. If set to `true`, the tmp dir in which the repositories are cloned, won't be deleted after the data collection is finished.
 
 ### Provide a list of markers with relevant points in time
 
@@ -32,7 +32,7 @@ The expected format is:
 
 The resulting HTML page can handle the following query parameters:
 
-* `languages`: comma-separated list of languages to show by default. Takes precedence over the `DEFAULT_LANGUAGES` environment variable.
+- `languages`: comma-separated list of languages to show by default. Takes precedence over the `DEFAULT_LANGUAGES` environment variable.
 
 ## Usage
 

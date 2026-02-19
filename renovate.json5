@@ -1,19 +1,12 @@
 {
-  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
-  extends: [
-    'config:recommended',
-  ],
-  customManagers: [],
-  packageRules: [
-    {
-      "matchManagers": [
-        "sbt",
-        "scalafmt"
-      ],
-      "enabled": false
-    }
-  ],
-  assignees: [
-    "lriedisser"
-  ],
+    $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+    extends: ['config:recommended'],
+    customManagers: [],
+    packageRules: [
+        {
+            matchManagers: ['sbt', 'scalafmt'],
+            enabled: false,
+        },
+    ],
+    assignees: ['lriedisser'],
 }
