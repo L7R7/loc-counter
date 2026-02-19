@@ -9,7 +9,6 @@
 project/metals.sbt
 src/main/resources/local.conf
 node_modules/
-pnpm-lock.yaml
 static/
 loc.db
 chart.html
