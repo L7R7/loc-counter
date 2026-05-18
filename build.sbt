@@ -52,9 +52,11 @@ lazy val root = (project in file("."))
     ),
     assembly / assemblyJarName := "app.jar",
     assembly / assemblyMergeStrategy := {
-      case PathList("META-INF", "okio.kotlin_module")   => MergeStrategy.last
-      case path if path.matches(".*module-info.class$") => MergeStrategy.last
-      case "module-info.class"                          => MergeStrategy.discard
-      case x                                            => (assembly / assemblyMergeStrategy).value.apply(x)
+      case PathList("META-INF", "okio.kotlin_module")          => MergeStrategy.last
+      case path if path.matches(".*module-info.class$")        => MergeStrategy.last
+      case PathList("META-INF", "OSGI-INF", _*)                => MergeStrategy.first
+      case PathList("META-INF", "versions", _, "OSGI-INF", _*) => MergeStrategy.first
+      case "module-info.class"                                 => MergeStrategy.discard
+      case x                                                   => (assembly / assemblyMergeStrategy).value.apply(x)
     }
   )
