@@ -1,4 +1,4 @@
-FROM eclipse-temurin:26_35-jre
+FROM eclipse-temurin:26.0.1_8-jre
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends cloc curl git sqlite3 unzip && \
