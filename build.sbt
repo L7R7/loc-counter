@@ -1,5 +1,5 @@
 val circeVersion = "0.14.15"
-val doobieVersion = "1.0.0-RC12"
+val doobieVersion = "1.0.0-RC13"
 val fs2DataVersion = "1.14.1"
 val http4sOtel4sMiddlewareVersion = "0.18.0"
 val http4sVersion = "0.23.34"
@@ -41,7 +41,7 @@ lazy val root = (project in file("."))
       "org.http4s" %% "http4s-dsl" % http4sVersion,
       "org.http4s" %% "http4s-ember-client" % http4sVersion,
       "org.http4s" %% "http4s-otel4s-middleware-trace-client" % http4sOtel4sMiddlewareVersion,
-      "org.tpolecat" %% "doobie-core" % doobieVersion,
+      "org.typelevel" %% "doobie-core" % doobieVersion,
       "org.typelevel" %% "log4cats-slf4j" % log4catsVersion,
       "org.typelevel" %% "otel4s-experimental-metrics" % otel4sExperimentalVersion,
       "org.typelevel" %% "otel4s-instrumentation-metrics" % otel4sVersion,
