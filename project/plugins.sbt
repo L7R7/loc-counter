@@ -1,4 +1,4 @@
-addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.14.6")
+addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.14.7")
 addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "2.3.1")
 addSbtPlugin("com.timushev.sbt" % "sbt-rewarn" % "0.1.3")
 addSbtPlugin("io.spray" % "sbt-revolver" % "0.10.0")
