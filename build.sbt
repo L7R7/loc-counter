@@ -1,4 +1,4 @@
-val circeVersion = "0.14.15"
+val circeVersion = "0.14.16"
 val doobieVersion = "1.0.0-RC13"
 val fs2DataVersion = "1.14.1"
 val http4sOtel4sMiddlewareVersion = "0.18.0"
