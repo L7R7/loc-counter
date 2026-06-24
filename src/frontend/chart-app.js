@@ -108,6 +108,8 @@ function initializeChart(chartData, markers) {
             scatterChart.data.datasets.forEach((ds, index) => {
                 ds.data = JSON.parse(JSON.stringify(originalData.datasets[index].data))
             })
+            // Let the x-axis auto-fit the full data range again
+            scatterChart.options.scales.x.min = undefined
         } else {
             const fromDateTime = new Date(fromDateStr).getTime()
             scatterChart.data.datasets.forEach((ds, index) => {
@@ -117,6 +119,8 @@ function initializeChart(chartData, markers) {
                     return pointTime >= fromDateTime
                 })
             })
+            // Move the x-axis left edge to match the filter date
+            scatterChart.options.scales.x.min = fromDateTime
         }
         scatterChart.update()
     }
