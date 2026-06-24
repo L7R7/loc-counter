@@ -1,9 +1,9 @@
 package com.l7r7.loc
 
 import cats.effect.IO
-import doobie.*
-import doobie.implicits.*
 import fs2.Stream
+import org.typelevel.doobie.*
+import org.typelevel.doobie.implicits.*
 
 import java.text.SimpleDateFormat
 import java.util.Date
