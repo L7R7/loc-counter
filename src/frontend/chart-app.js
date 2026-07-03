@@ -4,163 +4,210 @@ function initializeChart(chartData, markers) {
         return
     }
 
-    const data = {
-        datasets: chartData,
+    const fmtInt = (n) => n.toLocaleString('en-US')
+
+    function fmtCompact(n) {
+        if (n >= 1_000_000) return (n / 1_000_000).toFixed(n >= 10_000_000 ? 0 : 2) + 'M'
+        if (n >= 1_000) return (n / 1_000).toFixed(n >= 10_000 ? 0 : 1) + 'k'
+        return String(n)
     }
 
-    const config = {
-        type: 'scatter',
-        data: data,
-        options: {
-            responsive: true,
-            showLine: true,
-            elements: {
-                line: {
-                    showLine: true,
-                    tension: 0.2,
-                },
-            },
-            scales: {
-                x: {
-                    type: 'time',
-                    time: {
-                        unit: 'month',
-                        tooltipFormat: 'yyyy-MM-dd',
-                        displayFormats: {
-                            month: 'yyyy-MM',
-                        },
-                    },
-                    title: {
-                        display: true,
-                        text: 'Date',
-                    },
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Lines of Code',
-                    },
-                },
-            },
-            plugins: {
-                legend: {
-                    display: true,
-                },
-                annotation: {
-                    annotations: markers,
-                },
-            },
-        },
-    }
-
-    Object.values(config.options.plugins.annotation.annotations).forEach((annotation) => {
-        annotation.enter = function ({ element }) {
-            if (element && element.label && element.label.options) {
-                element.label.options.display = true
-                return true
-            }
-        }
-        annotation.leave = function ({ element }) {
-            if (element && element.label && element.label.options) {
-                element.label.options.display = false
-                return true
-            }
-        }
-    })
+    const parseDate = (s) => new Date(s + 'T00:00:00')
 
     function getLanguagesFromQuery() {
-        const params = new URLSearchParams(window.location.search)
-        const langs = params.get('languages')
+        const langs = new URLSearchParams(window.location.search).get('languages')
         if (!langs) return null
         return langs.split(',').map((l) => l.trim().toLowerCase())
     }
 
-    function getFromDateFromQuery() {
-        const params = new URLSearchParams(window.location.search)
-        return params.get('from')
-    }
+    const accent = window.getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()
+    const accentText =
+        window.getComputedStyle(document.documentElement).getPropertyValue('--accent-text').trim() || accent
 
-    function findEarliestDate(datasets) {
-        let earliest = null
-        datasets.forEach((ds) => {
-            if (ds.data && Array.isArray(ds.data)) {
-                ds.data.forEach((point) => {
-                    const pointTime = new Date(point.x).getTime()
-                    if (!earliest || pointTime < earliest) {
-                        earliest = pointTime
-                    }
-                })
-            }
-        })
-        return earliest ? new Date(earliest) : null
-    }
-
-    function formatDateToInputValue(date) {
-        const year = date.getFullYear()
-        const month = String(date.getMonth() + 1).padStart(2, '0')
-        const day = String(date.getDate()).padStart(2, '0')
-        return `${year}-${month}-${day}`
-    }
-
-    function applyDateFilter(fromDateStr, scatterChart, originalData) {
-        if (!fromDateStr) {
-            // Restore all original data
-            scatterChart.data.datasets.forEach((ds, index) => {
-                ds.data = JSON.parse(JSON.stringify(originalData.datasets[index].data))
-            })
-            // Let the x-axis auto-fit the full data range again
-            scatterChart.options.scales.x.min = undefined
-        } else {
-            const fromDateTime = new Date(fromDateStr).getTime()
-            scatterChart.data.datasets.forEach((ds, index) => {
-                const originalDataset = originalData.datasets[index].data
-                ds.data = originalDataset.filter((point) => {
-                    const pointTime = new Date(point.x).getTime()
-                    return pointTime >= fromDateTime
-                })
-            })
-            // Move the x-axis left edge to match the filter date
-            scatterChart.options.scales.x.min = fromDateTime
-        }
-        scatterChart.update()
-    }
-
-    const originalData = JSON.parse(JSON.stringify(data))
-    const selectedLangs = getLanguagesFromQuery()
-    const fromDate = getFromDateFromQuery()
-    const ctx = document.getElementById('scatterChart').getContext('2d')
-    const scatterChart = new Chart(ctx, config)
-
-    if (selectedLangs) {
-        scatterChart.data.datasets.forEach((ds) => {
-            ds.hidden = !selectedLangs.includes(ds.label.toLowerCase())
-        })
-        scatterChart.update()
-    }
-
-    const datePicker = document.getElementById('fromDatePicker')
-    const earliestDate = findEarliestDate(originalData.datasets)
-
-    if (fromDate) {
-        datePicker.value = fromDate
-        applyDateFilter(fromDate, scatterChart, originalData)
-    } else if (earliestDate) {
-        datePicker.value = formatDateToInputValue(earliestDate)
-    }
-
-    datePicker.addEventListener('change', function () {
-        applyDateFilter(this.value, scatterChart, originalData)
+    chartData.forEach((ds) => {
+        ds.pointRadius = 0
+        ds.pointHoverRadius = 4
+        ds.borderWidth = 2
+        ds.tension = 0.25
     })
 
-    document.getElementById('showAllBtn').onclick = function () {
-        scatterChart.data.datasets.forEach((ds) => (ds.hidden = false))
-        scatterChart.update()
+    let earliest = null
+    chartData.forEach((ds) =>
+        ds.data.forEach((p) => {
+            const t = parseDate(p.x).getTime()
+            if (earliest === null || t < earliest) earliest = t
+        })
+    )
+
+    let chart
+
+    function initChart() {
+        const ctx = document.getElementById('scatterChart').getContext('2d')
+
+        Object.values(markers).forEach((a) => {
+            a.borderColor = accent
+            a.borderWidth = 2
+            a.borderDash = [5, 4]
+            a.label = a.label || {}
+            a.label.display = false
+            a.label.position = 'start'
+            a.label.backgroundColor = accent
+            a.label.color = '#fff'
+            a.label.font = { size: 11, weight: '600' }
+            a.label.padding = 6
+            a.label.borderRadius = 6
+            a.enter = ({ element }) => {
+                if (element?.label?.options) {
+                    element.label.options.display = true
+                    return true
+                }
+            }
+            a.leave = ({ element }) => {
+                if (element?.label?.options) {
+                    element.label.options.display = false
+                    return true
+                }
+            }
+        })
+
+        chart = new window.Chart(ctx, {
+            type: 'scatter',
+            data: { datasets: chartData },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                showLine: true,
+                interaction: { mode: 'nearest', intersect: false },
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: { unit: 'month', tooltipFormat: 'yyyy-MM-dd', displayFormats: { month: 'yyyy-MM' } },
+                        grid: { color: 'rgba(15,23,42,0.05)' },
+                        border: { color: 'rgba(15,23,42,0.12)' },
+                        ticks: { color: '#94a3b8', font: { size: 11 } },
+                    },
+                    y: {
+                        grid: { color: 'rgba(15,23,42,0.05)' },
+                        border: { display: false },
+                        ticks: {
+                            color: '#94a3b8',
+                            font: { size: 11 },
+                            callback: (v) => fmtCompact(v),
+                        },
+                    },
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        borderColor: 'rgba(255,255,255,0.08)',
+                        borderWidth: 1,
+                        padding: 10,
+                        cornerRadius: 8,
+                        titleFont: { size: 12 },
+                        bodyFont: { size: 12 },
+                        callbacks: {
+                            label: (c) => ` ${c.dataset.label}: ${fmtInt(c.parsed.y)}`,
+                        },
+                    },
+                    annotation: { annotations: markers },
+                },
+            },
+        })
     }
 
-    document.getElementById('hideAllBtn').onclick = function () {
-        scatterChart.data.datasets.forEach((ds) => (ds.hidden = true))
-        scatterChart.update()
+    function syncLangRows() {
+        document.querySelectorAll('.lang-row').forEach((row) => {
+            row.classList.toggle('off', !!chartData[Number(row.dataset.index)].hidden)
+        })
     }
+
+    function toggleLang(index) {
+        chartData[index].hidden = !chartData[index].hidden
+        chart.update()
+        syncLangRows()
+    }
+
+    function wireLangRows() {
+        document.querySelectorAll('.lang-row').forEach((row) => {
+            row.addEventListener('click', () => toggleLang(Number(row.dataset.index)))
+        })
+    }
+
+    function highlightMarker(key, on) {
+        const ann = chart.options.plugins.annotation.annotations[key]
+        if (!ann) return
+        ann.label.display = on
+        ann.borderWidth = on ? 3 : 2
+        ann.borderColor = on ? accentText : accent
+        chart.update('none')
+    }
+
+    function wireMilestones() {
+        document.querySelectorAll('.ms-row').forEach((row) => {
+            const key = row.dataset.key
+            row.addEventListener('mouseenter', () => highlightMarker(key, true))
+            row.addEventListener('mouseleave', () => highlightMarker(key, false))
+        })
+    }
+
+    const originalData = chartData.map((ds) => ds.data.map((p) => ({ ...p })))
+
+    function applyDateFilter(fromStr) {
+        if (!fromStr) {
+            chartData.forEach((ds, i) => (ds.data = originalData[i].map((p) => ({ ...p }))))
+            chart.options.scales.x.min = undefined
+        } else {
+            const from = parseDate(fromStr).getTime()
+            chartData.forEach((ds, i) => {
+                ds.data = originalData[i].filter((p) => parseDate(p.x).getTime() >= from)
+            })
+            chart.options.scales.x.min = from
+        }
+        chart.update()
+    }
+
+    function wireControls() {
+        const picker = document.getElementById('fromDatePicker')
+        const fromDate = new URLSearchParams(window.location.search).get('from')
+
+        if (picker) {
+            if (fromDate) {
+                picker.value = fromDate
+                applyDateFilter(fromDate)
+            } else if (earliest) {
+                picker.value = new Date(earliest).toLocaleDateString('en-CA')
+            }
+            picker.addEventListener('change', function () {
+                applyDateFilter(this.value)
+            })
+        }
+
+        document.getElementById('showAllBtn').addEventListener('click', () => {
+            chartData.forEach((ds) => (ds.hidden = false))
+            chart.update()
+            syncLangRows()
+        })
+        document.getElementById('hideAllBtn').addEventListener('click', () => {
+            chartData.forEach((ds) => (ds.hidden = true))
+            chart.update()
+            syncLangRows()
+        })
+    }
+
+    initChart()
+
+    const selectedLangs = getLanguagesFromQuery()
+
+    if (selectedLangs) {
+        chartData.forEach((ds) => (ds.hidden = !selectedLangs.includes(ds.label.toLowerCase())))
+        chart.update()
+    }
+
+    wireLangRows()
+    wireMilestones()
+    wireControls()
+    syncLangRows()
 }
 
 window.initializeChart = initializeChart

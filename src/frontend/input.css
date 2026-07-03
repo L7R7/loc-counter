@@ -1,1 +1,83 @@
 @import 'tailwindcss';
+
+/* Scan the Pebble template for utility classes. */
+@source '../main/resources/chart.peb';
+
+/* ============================================================
+   Design tokens — light, refined. The indigo accent lives here
+   so it can be retuned in a single place; utilities read it as
+   bg-accent / text-accent-text / border-accent / ring-accent …
+   ============================================================ */
+@theme {
+    --color-ink: #0f172a;
+    --color-ink-2: #475569;
+    --color-ink-3: #8592a6;
+
+    --color-surface: #ffffff;
+    --color-surface-2: #f8fafc;
+    --color-surface-hover: #f1f5f9;
+
+    --color-accent: #6366f1;
+    --color-accent-strong: #4f46e5;
+    --color-accent-soft: #eef2ff;
+    --color-accent-soft-2: #e0e7ff;
+    --color-accent-text: #4338ca;
+
+    --radius-card: 16px;
+    --radius-soft: 10px;
+
+    --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.06), 0 14px 32px -18px rgba(15, 23, 42, 0.28);
+
+    --breakpoint-dash: 1081px;
+}
+
+/* plain custom-property aliases the frontend JS reads via getComputedStyle */
+:root {
+    --accent: var(--color-accent);
+    --accent-text: var(--color-accent-text);
+}
+
+/* desktop viewport-fit: give the height chain a definite root so .shell
+   (a flex-1 child) fills exactly one viewport and the inner card bodies
+   scroll instead of the page. Matches the prototype. */
+@media (min-width: 1081px) {
+    html,
+    body {
+        height: 100%;
+    }
+}
+
+/* multi-layer page background — not expressible as a single utility */
+@layer base {
+    body {
+        background:
+            radial-gradient(1200px 500px at 15% -10%, rgba(99, 102, 241, 0.1), transparent 60%),
+            linear-gradient(160deg, #f3f6fb, #e3e9f1);
+        background-attachment: fixed;
+        -webkit-font-smoothing: antialiased;
+    }
+}
+
+/* scrollable card bodies */
+.card-body::-webkit-scrollbar {
+    width: 9px;
+}
+
+.card-body::-webkit-scrollbar-thumb {
+    background: rgba(15, 23, 42, 0.14);
+    border-radius: 999px;
+    border: 2px solid #ffffff;
+}
+
+/* dynamic "hidden language" state — toggled from JS */
+.lang-row.off {
+    opacity: 0.4;
+}
+
+.lang-row.off .swatch {
+    background: #8592a6 !important;
+}
+
+.lang-row.off .bar-fill {
+    background: #8592a6 !important;
+}
