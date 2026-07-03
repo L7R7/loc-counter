@@ -63,7 +63,7 @@ object Main extends IOApp.Simple:
         ChartEntry(
           label = label,
           data = entries.map(e => ChartEntry.DataPoint(dateFormat.format(e.date), e.loc)).toList,
-          hidden = !config.defaultLanguages.contains(label)
+          hidden = config.defaultLanguages.exists(!_.exists(_ == label))
         )
       )
       .foldMap(List(_))
