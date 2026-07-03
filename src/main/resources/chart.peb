@@ -3,50 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lines of Code History</title>
+    <title>Lines of Code · Dashboard</title>
     <link rel="stylesheet" href="static/styles.css">
     <script src="static/bundle.js"></script>
     <script src="static/chart-app.js"></script>
 </head>
-<body class="bg-linear-to-br from-slate-100 to-slate-300 min-h-screen flex flex-col">
-<main class="flex-1 flex flex-col w-full max-w-full py-10 px-2 sm:px-6">
-    <h1 class="text-3xl font-bold text-slate-800 mb-8 text-center tracking-tight">lines of code per language over time
-        for the projects in <a href="{{groupUrl}}" class="text-blue-700 hover:underline focus:underline">{{groupFullName}}</a>
-    </h1>
-    <div class="flex justify-center gap-4 mb-6 flex-wrap">
-        <button id="showAllBtn"
-                class="px-5 py-2 rounded bg-blue-600 text-white font-semibold shadow-md hover:bg-blue-700 transition">
-            Show all languages
-        </button>
-        <button id="hideAllBtn"
-                class="px-5 py-2 rounded bg-gray-400 text-white font-semibold shadow-md hover:bg-gray-500 transition">
-            Hide all languages
-        </button>
-        <div class="flex items-center gap-2">
-            <label for="fromDatePicker" class="font-semibold text-slate-700">Hide entries older than:</label>
-            <input type="date" id="fromDatePicker"
-                   class="px-3 py-2 rounded border border-slate-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+<body class="min-h-screen flex flex-col font-sans text-ink">
+<div class="shell w-full max-w-[1560px] mx-auto p-[clamp(16px,2.4vw,32px)] flex-1 flex flex-col gap-[clamp(16px,1.8vw,24px)] dash:h-screen dash:overflow-hidden">
+    <!-- header -->
+    <header class="flex items-end justify-between gap-5 flex-wrap">
+        <div>
+            <h1 class="text-[clamp(1.35rem,2.2vw,1.9rem)] font-bold tracking-[-0.02em] text-ink">Lines of Code</h1>
+            <p class="text-ink-2 text-[0.925rem] mt-1">per language over time · <a href="{{groupUrl}}"
+                    class="text-accent-text font-semibold hover:underline">{{groupFullName}}</a></p>
         </div>
-    </div>
-    <div class="bg-white shadow-md p-6 border border-slate-200 flex-1 flex flex-col min-h-0 w-full max-w-full">
-        <canvas id="scatterChart" class="w-full h-full min-h-0 flex-1 block mx-auto"
-                style="height:100%!important;max-width:100%;"></canvas>
-    </div>
-    <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            // @formatter:off
-            const chartData = {{chartData | raw}};
-            const markers = {{markers | raw}};
-            // @formatter:on
+        <div class="flex flex-col items-end gap-1">
+            <a class="inline-flex items-center gap-[5px] text-[0.82rem] font-semibold text-accent-text no-underline bg-surface border border-ink/8 rounded-full px-3 py-[5px] shadow-sm transition hover:border-accent hover:ring-[3px] hover:ring-accent/30"
+               href="{{ciProjectUri}}">
+                <svg class="w-[13px] h-[13px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+                Repository
+            </a>
+            <div class="text-[0.78rem] text-ink-3 text-right">Generated <span class="text-ink-2 font-semibold">{{generatedAt}}</span></div>
+        </div>
+    </header>
 
-            initializeChart(chartData, markers);
-        });
-    </script>
-</main>
-<footer class="py-6 bg-slate-100 shadow-inner border-t border-slate-300 w-full text-center text-slate-500 text-sm mt-0">
-    <p>Generated on <span class="font-semibold">{{generatedAt}}</span> in <a href="{{ciProjectUri}}"
-                                                                             class="text-blue-700 hover:underline focus:underline">this
-        repository</a></p>
-</footer>
+    <!-- KPI slim strip -->
+    <section class="stat-strip flex flex-wrap bg-surface border border-ink/8 rounded-card shadow-card overflow-hidden">
+        <div class="flex-[1_1_auto] flex items-baseline gap-2.5 px-[22px] py-[13px] border-l border-ink/8 min-w-0 first:border-l-0 first:pl-6 max-[820px]:basis-1/2 max-[820px]:odd:border-l-0">
+            <span class="text-[0.7rem] uppercase tracking-[0.06em] text-ink-3 font-semibold whitespace-nowrap">Total lines</span>
+            <span class="text-[1.2rem] font-bold tracking-[-0.02em] leading-[1.1] text-ink whitespace-nowrap tabular-nums">{{stats.total}}</span>
+            <span class="self-center font-semibold text-accent-text bg-accent-soft px-[7px] py-px rounded-full text-[0.7rem]">{{stats.trend}}</span>
+        </div>
+        <div class="flex-[1_1_auto] flex items-baseline gap-2.5 px-[22px] py-[13px] border-l border-ink/8 min-w-0 first:border-l-0 first:pl-6 max-[820px]:basis-1/2 max-[820px]:odd:border-l-0">
+            <span class="text-[0.7rem] uppercase tracking-[0.06em] text-ink-3 font-semibold whitespace-nowrap">Languages</span>
+            <span class="text-[1.2rem] font-bold tracking-[-0.02em] leading-[1.1] text-ink whitespace-nowrap tabular-nums">{{stats.langs}}</span>
+        </div>
+        <div class="flex-[1_1_auto] flex items-baseline gap-2.5 px-[22px] py-[13px] border-l border-ink/8 min-w-0 first:border-l-0 first:pl-6 max-[820px]:basis-1/2 max-[820px]:odd:border-l-0">
+            <span class="text-[0.7rem] uppercase tracking-[0.06em] text-ink-3 font-semibold whitespace-nowrap">Tracked since</span>
+            <span class="text-[1.2rem] font-bold tracking-[-0.02em] leading-[1.1] text-ink whitespace-nowrap">{{stats.since}}</span>
+        </div>
+        <div class="flex-[1_1_auto] flex items-baseline gap-2.5 px-[22px] py-[13px] border-l border-ink/8 min-w-0 first:border-l-0 first:pl-6 max-[820px]:basis-1/2 max-[820px]:odd:border-l-0">
+            <span class="text-[0.7rem] uppercase tracking-[0.06em] text-ink-3 font-semibold whitespace-nowrap">Latest snapshot</span>
+            <span class="text-[1.2rem] font-bold tracking-[-0.02em] leading-[1.1] text-ink whitespace-nowrap">{{stats.latest}}</span>
+        </div>
+    </section>
+
+    <!-- main grid -->
+    <section class="main-grid grid grid-cols-1 dash:grid-cols-[minmax(0,2.3fr)_minmax(320px,1fr)] gap-[clamp(16px,1.8vw,24px)] items-stretch dash:flex-1 dash:min-h-0">
+        <!-- chart -->
+        <div class="card chart-card bg-surface border border-ink/8 rounded-card shadow-card flex flex-col min-h-0">
+            <div class="card-head flex items-center justify-between gap-3 px-5 py-4 border-b border-ink/8 flex-wrap">
+                <h2 class="text-[0.95rem] font-bold text-ink">Lines of code over time</h2>
+                <div class="flex items-center gap-2.5 flex-wrap">
+                    <label class="flex items-center gap-2 text-[0.82rem] text-ink-2 font-medium" for="fromDatePicker">Since
+                        <input type="date" id="fromDatePicker"
+                               class="text-[0.82rem] text-ink bg-surface-2 border border-ink/14 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-accent focus:ring-[3px] focus:ring-accent/30">
+                    </label>
+                    <button id="showAllBtn"
+                            class="text-[0.8rem] font-semibold cursor-pointer rounded-lg px-3 py-1.5 border border-ink/14 bg-surface text-ink-2 transition hover:bg-surface-hover hover:text-ink">
+                        Show all
+                    </button>
+                    <button id="hideAllBtn"
+                            class="text-[0.8rem] font-semibold cursor-pointer rounded-lg px-3 py-1.5 border border-ink/14 bg-surface text-ink-2 transition hover:bg-surface-hover hover:text-ink">
+                        Hide all
+                    </button>
+                </div>
+            </div>
+            <div class="chart-wrap pt-[14px] px-4 pb-[18px] h-[clamp(440px,62vh,720px)] relative dash:h-auto dash:flex-1 dash:min-h-0">
+                <canvas id="scatterChart"></canvas>
+            </div>
+        </div>
+
+        <!-- side panel -->
+        <aside class="side flex flex-col gap-[clamp(16px,1.8vw,24px)] min-h-0">
+            <div class="card bg-surface border border-ink/8 rounded-card shadow-card flex flex-col min-h-0 grow-0 shrink basis-auto dash:flex-1">
+                <div class="card-head flex items-center justify-between gap-3 px-5 py-4 border-b border-ink/8 flex-wrap">
+                    <h2 class="text-[0.95rem] font-bold text-ink">Languages</h2>
+                    <span class="text-[0.78rem] text-ink-3 font-medium">click to toggle</span>
+                </div>
+                <div class="lang-scroll card-body flex-1 min-h-0 overflow-y-auto pt-1.5 px-2 pb-2.5 max-[1080px]:max-h-[60vh]" id="langTable">
+                    {% for lang in languages %}
+                    <div class="lang-row grid grid-cols-[14px_1fr_auto] items-center gap-2.5 px-2.5 py-2 rounded-soft cursor-pointer select-none relative transition-colors hover:bg-surface-hover{% if lang.hidden %} off{% endif %}"
+                         data-index="{{ lang.index }}">
+                        <span class="swatch w-[11px] h-[11px] rounded-[3px] shadow-[0_0_0_1px_rgba(0,0,0,0.06)_inset]" style="background: {{ lang.color }}"></span>
+                        <span class="name text-[0.875rem] font-semibold text-ink whitespace-nowrap overflow-hidden text-ellipsis">{{ lang.name }}</span>
+                        <span class="meta text-right whitespace-nowrap"><span class="text-[0.85rem] font-semibold text-ink tabular-nums">{{ lang.count }}</span><span class="text-[0.72rem] text-ink-3 tabular-nums ml-1.5">{{ lang.share }}%</span></span>
+                        <span class="bar col-[2/4] h-[3px] rounded-full bg-ink/8 overflow-hidden mt-0.5"><span class="bar-fill block h-full rounded-full opacity-85" style="width: {{ lang.barWidth }}%; background: {{ lang.color }}"></span></span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="card bg-surface border border-ink/8 rounded-card shadow-card flex flex-col min-h-0 grow-0 shrink basis-auto dash:flex-1">
+                <div class="card-head flex items-center justify-between gap-3 px-5 py-4 border-b border-ink/8 flex-wrap">
+                    <h2 class="text-[0.95rem] font-bold text-ink">Milestones</h2>
+                    <span class="text-[0.78rem] text-ink-3 font-medium">hover to locate</span>
+                </div>
+                <div class="milestones card-body flex-1 min-h-0 overflow-y-auto pt-1.5 px-2 pb-2.5 max-[1080px]:max-h-[60vh]" id="msTable">
+                    {% for ms in milestones %}
+                    <div class="ms-row group grid grid-cols-[auto_1fr] gap-3 px-2.5 py-2.5 rounded-soft relative transition-colors hover:bg-accent-soft [&+&]:border-t [&+&]:border-ink/8"
+                         data-key="{{ ms.key }}">
+                        <span class="absolute left-0 top-2 bottom-2 w-[3px] rounded-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                        <span class="text-[0.78rem] font-bold text-accent-text tabular-nums whitespace-nowrap pt-px">{{ ms.date }}</span>
+                        <span class="text-[0.84rem] text-ink leading-[1.45]">{% if ms.tag %}<span class="inline-block text-[0.68rem] font-bold tracking-[0.02em] text-accent-text bg-accent-soft border border-accent-soft-2 px-[7px] py-px rounded-md mr-1.5">{{ ms.tag }}</span>{% endif %}{{ ms.text }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </aside>
+    </section>
+</div>
+
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        // @formatter:off
+        const chartData = {{chartData | raw}};
+        const markers = {{markers | raw}};
+        // @formatter:on
+
+        initializeChart(chartData, markers);
+    });
+</script>
 </body>
 </html>
