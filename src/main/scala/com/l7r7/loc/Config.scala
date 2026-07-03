@@ -1,5 +1,6 @@
 package com.l7r7.loc
 
+import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.effect.std.Env
 import cats.syntax.all.*
@@ -17,7 +18,7 @@ case class Config(
     userAgent: `User-Agent`,
     groupId: Int,
     databaseName: String,
-    defaultLanguages: List[String],
+    defaultLanguages: Option[NonEmptyList[String]],
     keepTmpDir: Boolean,
     markers: List[Marker]
 ):
@@ -43,9 +44,10 @@ object Config:
       groupId <- "GITLAB_GROUP_ID".parseFromEnv(_.toIntOption)
       databaseName <- "DATABASE_NAME".lookupFromEnv()
       defaultLanguages <- "DEFAULT_LANGUAGES".parseFromEnv(s => Some(s.split(",").toList), Some(""))
+      defaultLanguagesNonEmpty = NonEmptyList.fromList(defaultLanguages.map(_.trim).filter(_.nonEmpty))
       keepTmpDir <- "KEEP_TMP_DIR".parseFromEnv(_.toBooleanOption, Some("false"))
       markers <- parseMarkers
-    yield Config(apiToken, gitlabApiBaseUrl, ciProjectUri, userAgent, groupId, databaseName, defaultLanguages, keepTmpDir, markers)
+    yield Config(apiToken, gitlabApiBaseUrl, ciProjectUri, userAgent, groupId, databaseName, defaultLanguagesNonEmpty, keepTmpDir, markers)
 
   def parseMarkers: IO[List[Marker]] =
     val markersPath = Path("markers.csv")
