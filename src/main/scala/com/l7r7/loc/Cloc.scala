@@ -4,9 +4,9 @@ import cats.Eq
 import cats.effect.IO
 import cats.kernel.Monoid
 import cats.syntax.all.*
+import fs2.Stream
 import fs2.data.json.*
 import fs2.data.json.circe.*
-import fs2.data.text.utf8.*
 import fs2.io.file.Path
 import fs2.io.process.ProcessBuilder
 import fs2.text.utf8
@@ -22,24 +22,28 @@ object Cloc:
       .spawn[IO]
       .use(process =>
         for
-          maybeResult <- process.stdout
+          stdout <- process.stdout.through(utf8.decode).compile.string
+          maybeResult <- Stream
+            .emit(stdout)
+            .covary[IO]
             .through(ast.parse)
             .map(json => if json == Json.obj() then Right(Monoid[Result].empty) else json.as[Result])
             .compile
             .last
+            .handleError(e => Some(Left(RuntimeException(s"Failed to parse Cloc output as JSON. Output: $stdout", e))))
           stderr <- process.stderr.through(utf8.decode).compile.string
           exitValue <- process.exitValue
           res <-
             if exitValue == 0
             then
               maybeResult match
-                case None => IO.raiseError(RuntimeException(s"Cloc exited successfully, but produced no output, path: $path, error: $stderr"))
+                case None => IO.raiseError(RuntimeException(s"Cloc exited successfully, but produced no output, path: $path, stderr: $stderr"))
                 case Some(Left(parseError)) =>
                   IO.raiseError(
-                    RuntimeException(s"Cloc exited successfully, but its output can't be parsed: $parseError, path: $path, error: $stderr")
+                    RuntimeException(s"Cloc exited successfully, but its output can't be parsed: $parseError, path: $path, stderr: $stderr")
                   )
                 case Some(Right(result)) => IO.pure(result)
-            else IO.raiseError(RuntimeException(s"Cloc failed with exit code $exitValue, error: $stderr"))
+            else IO.raiseError(RuntimeException(s"Cloc failed with exit code $exitValue, stderr: $stderr"))
         yield res
       )
 
