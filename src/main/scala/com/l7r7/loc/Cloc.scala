@@ -17,7 +17,7 @@ trait Cloc:
 
 object Cloc:
   def apply(workingDir: Path): Cloc = (path: Path) =>
-    ProcessBuilder("cloc", "--json", "--force-lang=HTML,peb", ".")
+    ProcessBuilder("cloc", "--timeout=0", "--diff-timeout=0", "--json", "--force-lang=HTML,peb", ".")
       .withWorkingDirectory(workingDir / path)
       .spawn[IO]
       .use(process =>
