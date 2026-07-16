@@ -31,10 +31,46 @@
     --breakpoint-dash: 1081px;
 }
 
-/* plain custom-property aliases the frontend JS reads via getComputedStyle */
+/* plain custom-property aliases the frontend JS reads via getComputedStyle.
+   Chart colours live here too so they flip with the theme (getComputedStyle
+   resolves var() to concrete values — but not light-dark(), hence the
+   data-theme override block below rather than the native function). */
 :root {
     --accent: var(--color-accent);
     --accent-text: var(--color-accent-text);
+    --chart-grid: rgba(15, 23, 42, 0.05);
+    --chart-axis: rgba(15, 23, 42, 0.12);
+    --chart-tick: #94a3b8;
+    --chart-tooltip-bg: #0f172a;
+    --chart-tooltip-text: #ffffff;
+}
+
+/* dark palette — applied when JS resolves the theme to dark
+   (system preference by default, or an explicit toggle choice). Every token
+   the utilities read is re-pointed here; token-derived opacities like
+   border-ink/8 flip automatically. */
+:root[data-theme='dark'] {
+    --color-ink: #e6edf6;
+    --color-ink-2: #9fb0c3;
+    --color-ink-3: #6b7d92;
+
+    --color-surface: #161b26;
+    --color-surface-2: #1e2634;
+    --color-surface-hover: #232c3c;
+
+    --color-accent: #818cf8;
+    --color-accent-strong: #a5b4fc;
+    --color-accent-soft: #1e243a;
+    --color-accent-soft-2: #2a3352;
+    --color-accent-text: #a5b4fc;
+
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4), 0 14px 32px -18px rgba(0, 0, 0, 0.7);
+
+    --chart-grid: rgba(226, 232, 240, 0.07);
+    --chart-axis: rgba(226, 232, 240, 0.16);
+    --chart-tick: #6b7d92;
+    --chart-tooltip-bg: #0b0f17;
+    --chart-tooltip-text: #e6edf6;
 }
 
 /* desktop viewport-fit: give the height chain a definite root so .shell
@@ -56,6 +92,12 @@
         background-attachment: fixed;
         -webkit-font-smoothing: antialiased;
     }
+
+    :root[data-theme='dark'] body {
+        background:
+            radial-gradient(1200px 500px at 15% -10%, rgba(129, 140, 248, 0.12), transparent 60%),
+            linear-gradient(160deg, #0d1220, #070a12);
+    }
 }
 
 /* scrollable card bodies */
@@ -64,9 +106,9 @@
 }
 
 .card-body::-webkit-scrollbar-thumb {
-    background: rgba(15, 23, 42, 0.14);
+    background: color-mix(in oklab, var(--color-ink) 14%, transparent);
     border-radius: 999px;
-    border: 2px solid #ffffff;
+    border: 2px solid var(--color-surface);
 }
 
 /* dynamic "hidden language" state — toggled from JS */

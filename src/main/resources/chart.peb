@@ -5,6 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lines of Code · Dashboard</title>
     <link rel="stylesheet" href="static/styles.css">
+    <!-- resolve theme before first paint (no flash); exposes helpers for the toggle -->
+    <script>
+        (function () {
+            var KEY = 'loc-theme'
+            var mq = window.matchMedia('(prefers-color-scheme: dark)')
+            window.getThemePref = function () { return localStorage.getItem(KEY) || 'auto' }
+            window.applyTheme = function () {
+                var pref = window.getThemePref()
+                var dark = pref === 'dark' || (pref === 'auto' && mq.matches)
+                document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+                document.dispatchEvent(new CustomEvent('themechange'))
+            }
+            window.setThemePref = function (p) {
+                p === 'auto' ? localStorage.removeItem(KEY) : localStorage.setItem(KEY, p)
+                window.applyTheme()
+            }
+            window.applyTheme()
+            mq.addEventListener('change', function () {
+                if (window.getThemePref() === 'auto') window.applyTheme()
+            })
+        })()
+    </script>
     <script src="static/bundle.js"></script>
     <script src="static/chart-app.js"></script>
 </head>
@@ -18,12 +40,16 @@
                     class="text-accent-text font-semibold hover:underline">{{groupFullName}}</a></p>
         </div>
         <div class="flex flex-col items-end gap-1">
+          <div class="flex items-center gap-2">
+            <button id="themeToggle" type="button" aria-label="Toggle color theme"
+                    class="inline-flex items-center gap-[5px] text-[0.82rem] font-semibold text-accent-text bg-surface border border-ink/8 rounded-full px-3 py-[5px] shadow-sm transition cursor-pointer hover:border-accent hover:ring-[3px] hover:ring-accent/30"></button>
             <a class="inline-flex items-center gap-[5px] text-[0.82rem] font-semibold text-accent-text no-underline bg-surface border border-ink/8 rounded-full px-3 py-[5px] shadow-sm transition hover:border-accent hover:ring-[3px] hover:ring-accent/30"
                href="{{ciProjectUri}}">
                 <svg class="w-[13px] h-[13px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
                 Repository
             </a>
+          </div>
             <div class="text-[0.78rem] text-ink-3 text-right">Generated <span class="text-ink-2 font-semibold">{{generatedAt}}</span></div>
         </div>
     </header>
