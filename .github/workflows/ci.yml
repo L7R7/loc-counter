@@ -82,7 +82,7 @@ jobs:
               with:
                   name: build-artifacts
                   path: |
-                      target/scala/app.jar
+                      target/app.jar
                       static/
 
     docker:
@@ -99,7 +99,7 @@ jobs:
                   name: build-artifacts
 
             - name: Prepare Docker build
-              run: cp target/scala/app.jar app.jar
+              run: cp target/app.jar app.jar
 
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v4
