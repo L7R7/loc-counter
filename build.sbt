@@ -51,6 +51,7 @@ lazy val root = (project in file("."))
       "org.xerial" % "sqlite-jdbc" % sqliteJdbcVersion
     ),
     assembly / assemblyJarName := "app.jar",
+    assembly / assemblyOutputPath := Def.uncached(baseDirectory.value / "target" / (assembly / assemblyJarName).value),
     assembly / assemblyMergeStrategy := {
       case PathList("META-INF", "okio.kotlin_module")          => MergeStrategy.last
       case path if path.matches(".*module-info.class$")        => MergeStrategy.last
