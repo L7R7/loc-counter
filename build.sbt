@@ -10,7 +10,7 @@ val openTelemetryVersion = "1.64.0"
 val otel4sExperimentalVersion = "0.11.0"
 val otel4sVersion = "1.0.1"
 val pebbleScalaVersion = "1.1.6"
-val sqliteJdbcVersion = "3.53.2.0"
+val sqliteJdbcVersion = "3.53.2.1"
 val typelevelScalafixVersion = "0.5.0"
 val weaverVersion = "0.13.0"
 
