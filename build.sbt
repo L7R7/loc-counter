@@ -12,7 +12,7 @@ val otel4sVersion = "1.1.0"
 val pebbleScalaVersion = "1.1.6"
 val sqliteJdbcVersion = "3.54.1.0"
 val typelevelScalafixVersion = "0.6.0"
-val weaverVersion = "0.13.0"
+val weaverVersion = "0.13.1"
 
 lazy val root = (project in file("."))
   .settings(
